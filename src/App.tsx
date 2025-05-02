@@ -1,26 +1,12 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import './cssFiles/order.css';
+import {GetTemplatePage} from './Pages/TemplatePage';
+import {GetCalculationPage} from './Pages/CalculationPage';
+import {GetPassportPage} from './Pages/PassportPage';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return GetPassportPage();
+    // return GetTemplatePage();
 }
 
 export default App;

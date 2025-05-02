@@ -1,0 +1,41 @@
+﻿.form-input,
+.form-textarea {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    resize: none;
+    width: 100%;
+    max-width: 220px;
+}
+
+.input-style{
+    background-color: #fff7e6; /* светло-жёлтый */
+    box-sizing: border-box;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 0.5rem;
+}
+
+.form-input.small {
+    max-width: 160px;
+}
+
+.form-textarea {
+    min-height: 120px;
+}
+
+.form-input {
+    width: 80px;
+    min-height: 34px;
+    
+}
+
+.date-input {
+    width: 120px;
+    min-height: 34px;
+    padding-left: 0.5rem;
+}
+
+.form-input-vertical {
+    min-width: 120px;
+    max-width: 180px;
+}

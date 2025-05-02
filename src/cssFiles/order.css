@@ -1,0 +1,95 @@
+.orders-section {
+    background-color: white;
+    padding: 1rem 2rem;
+}
+
+.orders-section:hover {
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.hover-transparent {
+    display: flex;
+    align-items: center;
+    height: 3rem;
+    padding: 0 1rem;
+    background-color: white;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: bold;
+}
+
+.hover-light-green{
+}
+
+.hover-light-green:hover{
+    background-color: #e0f4ec; /* нежно-зелёный */
+    transition: background-color 0.3s ease;
+}
+
+.order-cell {
+    padding: 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-cell-Object {
+    font-size: 16px;
+}
+
+.cell-id {
+    flex: 0.75;
+}
+
+.cell-name {
+    flex: 1.5;
+}
+
+.cell-description {
+    flex: 3;
+}
+
+.cell-status {
+    flex: 0.4;
+}
+
+.cell-more {
+    flex: 1.8;
+}
+
+.order-cell.cell-more .order-button {
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.hover-transparent:hover .order-cell.cell-more .order-button {
+    opacity: 1;
+}
+
+.order-button {
+    font-size: 16px;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: none;
+    margin-left: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #f4e9cc; /* желтая по умолчанию */
+    color: black;
+    transition: background-color 0.3s;
+}
+
+.order-button:hover {
+    background-color: #f0f0f0;
+}
+
+.order-button:first-child {
+    margin-left: 0;
+}
+
+.order-button.active {
+    background-color: #42a486;
+    color: white;
+}

@@ -1,0 +1,116 @@
+﻿.top-section {
+    height: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.padding-0 {
+    padding: 0;
+}
+.back {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    background-color: white;
+    font-weight: bold;
+}
+.block-zero-padding{
+    padding-bottom: 1rem;
+    border-radius: 8px;
+    display: flex;
+    gap: 0.5rem;
+    position: relative;
+}
+
+
+.left-section {
+    justify-content: left;
+    display: flex;
+    flex: 1;
+}
+
+.center-section {
+    justify-content: center;
+    display: flex;
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
+}
+.flex-075 {
+    flex: 0.75;
+}
+.flex-2 {
+    flex: 2;
+}
+.padding-top-15{
+    padding-top: 1.5rem;
+}
+
+.content-middle{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ellipsis {
+    white-space: nowrap;        /* запрет переноса строки */
+    overflow: hidden;           /* скрыть выходящий за пределы */
+    text-overflow: ellipsis;    /* троеточие */
+}
+
+.content-right{
+    display: flex;
+    justify-content: right;
+}
+
+.padding-left-2{
+    padding-left: 2rem;
+}
+.cell-vertical {
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.height-100{
+    height: 100px;
+}
+.height-2{
+    height: 3rem;
+}
+
+.bold-text-16{
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.normal-text-14{
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.bold-text-24{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.bold-text-20 {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.block-button {
+    font-size: 24px;
+    height: 35px;
+    width: 35px;
+    cursor: pointer;
+    color: black;
+    margin-right: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+

@@ -1,0 +1,69 @@
+﻿.white-container {
+    /*font-size: 24px;*/
+    /*font-weight: bold;*/
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.block-spase{
+    justify-content: space-between;  /* Распределяем элементы по краям */
+}
+
+.align-start {
+    align-content: start;
+    align-items: start;
+}
+
+.align-center {
+    align-content: center;
+    align-items: center;
+}
+
+.align-end {
+    align-content: end;
+    align-items: end;
+}
+
+.block-column {
+    flex-direction: column;
+    row-gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.block-row {
+    flex-direction: row;
+    column-gap: 0.5rem;
+    padding: 0 1rem;
+}
+
+.block-column-0-padding {
+    flex-direction: column;
+    row-gap: 0.5rem;
+    padding: 0;
+    justify-items: stretch;
+}
+.block-column-0-padding-0-gap {
+    flex-direction: column;
+    row-gap: 0;
+    padding: 0;
+    justify-items: stretch;
+}
+
+.block-row-0-padding {
+    flex-direction: row;
+    column-gap: 0.5rem;
+    padding: 0;
+    justify-items: stretch;
+}
+
+.block {
+    box-shadow: inset 0 0 1px 1px red;
+    border-radius: 8px;
+    display: flex;
+    flex-grow: 1;
+}
+
+a {
+    color: cornflowerblue;
+    cursor: pointer;
+}
