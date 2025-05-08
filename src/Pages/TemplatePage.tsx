@@ -1,32 +1,40 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import '../App.css';
 import '../cssFiles/order.css';
 import {
     CreateTemplateOrders,
     createOrdersTitle,
     CreateTitleButtons,
-    Order,
     OrderTitleButtons, 
     GetMainTitle
 } from './OrderPagesCreator';
+import {api} from "../apiService";
+import {TemplateWithDescription} from "../Models/Models";
 
 export function GetTemplatePage() {
     const [activeButton, setActiveButton] = useState<OrderTitleButtons>('Шаблон');
-    const [orders] = useState<Order[]>([
-        {Name: 'Брошюра А4', Description: 'Печать брошюры 12 стр.'},
-        {Name: 'Каталог', Description: 'Печать 100 стр. с обложкой'},
-        {Name: 'Листовка', Description: 'Цветная печать, 500 шт.'},
-        {Name: 'Визитки', Description: '1000 визиток, двусторонние'},
-    ]);
+    const [orders, setOrders] = useState<TemplateWithDescription[]>([]);
     const [activeButtonInfo, setActiveButtonInfo]
-        = useState<{ orderIndex: number; button: 'Редактировать' | 'Создать расчёт' } | null>(null);
+        = useState<{ orderIndex: number; button: 'Редактировать' | 'Тех. Карта' } | null>(null);
+    
+    useEffect(() => {
+        api.getTemplates().then(x =>{
+            setOrders([...x.items])
+        });
+    }, []);
 
     return (
         <div className="App">
             <div className="block block-column">
                 {GetMainTitle("Система печати")}
-                <CreateTitleButtons buttonLabels={['Шаблон', 'Расчёт', 'Проверенные']}
-                                    activeButton={activeButton} setActiveButton={setActiveButton}/>
+                <CreateTitleButtons buttonLabels={['+', 'Шаблон', 'Расчёт']}
+                                    activeButton={activeButton} setActiveButton={setActiveButton}
+                                    onSubmit = {() => {
+                                        api.getTemplates().then(x => {
+                                            setOrders([...x.items])
+                                        });
+                                    }}
+                />
                 <div className="block block-row">
                     <div className="block block-column">
                         {createOrdersTitle(
@@ -36,6 +44,11 @@ export function GetTemplatePage() {
                         <CreateTemplateOrders orders={orders}
                                               activeInfo={activeButtonInfo}
                                               setActiveInfo={setActiveButtonInfo}
+                                              onSubmit={() => {
+                                                  api.getTemplates().then(x => {
+                                                      setOrders([...x.items])
+                                                  });
+                                              }}
                         />
                     </div>
                 </div>

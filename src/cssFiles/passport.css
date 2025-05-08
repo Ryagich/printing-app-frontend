@@ -43,6 +43,9 @@
 .flex-075 {
     flex: 0.75;
 }
+.flex-02 {
+    flex: 0.2;
+}
 .flex-2 {
     flex: 2;
 }
@@ -67,6 +70,11 @@
     justify-content: right;
 }
 
+.content-left{
+    display: flex;
+    justify-content: left;
+}
+
 .padding-left-2{
     padding-left: 2rem;
 }
@@ -86,7 +94,10 @@
     font-size: 16px;
     font-weight: bold;
 }
-
+.bold-text-14{
+    font-size: 14px;
+    font-weight: bold;
+}
 .normal-text-14{
     font-size: 16px;
     font-weight: normal;

@@ -4,19 +4,30 @@ import '../App.css'
 import '../cssFiles/Titles.css';
 import '../cssFiles/Elements.css';
 
-import {useNavigate} from 'react-router-dom';
-import React, {useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
 import {GetMainTitle} from "./OrderPagesCreator";
+import {api} from "../apiService";
+import {GetTemplateByIdResponse} from "../DTOs";
+import {Material, Step, TemplateWithDescription} from "../Models/Models";
 
 type ButtonsName = 'Паспорт заказа' | 'Подробнее'
 
 export function GetPassportPage() {
+    const { id } = useParams();
+    const [order, setTemplate] = useState<GetTemplateByIdResponse>();
+    useEffect(() => {
+        api.getTemplateById(id!).then(x =>{
+            setTemplate(x)
+        });
+    }, []);
+    
     return (
         <div className="App">
             <div className='block block-column'>
                 {GetMainTitle("Паспорт заказа")}
-                {GetMiddle(true)}
-                {GetBottom()}
+                {id ? GetMiddle(true, id) : <div>Loading...</div>}
+                {order ? GetBottom(order) : <div>Loading...</div>}
             </div>
         </div>
     );
@@ -24,10 +35,18 @@ export function GetPassportPage() {
 
 export function GetPassportPageMore() {
     const navigate = useNavigate();
+    const { id } = useParams();
+    const [template, setTemplate] = useState<GetTemplateByIdResponse>();
+    useEffect(() => {
+        api.getTemplateById(id!).then(x =>{
+            setTemplate(x)
+        });
+    }, []);
+    
     return <div className="App">
         <div className="block block-column">
             {GetMainTitle("Паспорт заказа")}
-            {GetMiddle(false)}
+            {id ? GetMiddle(false, id) : <div>Loading...</div>}
             <div className="block block-row">
                 <div className="block block-column align-start white-container">
                     <div className="block block-row bold-text-16 align-center">
@@ -104,31 +123,15 @@ export function GetPassportPageMore() {
                                     <div className="block block-column flex-075 align-center bold-text-16">Кол-во</div>
                                     <div className="block block-column flex-075 align-center bold-text-16">Сумма</div>
                                 </div>
-                                <div className="block block-row align-center  ">
-                                    <div className="normal-text-14 flex-2">Пример материала 1</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">12</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">1412412
-                                    </div>
-                                </div>
-                                <div className="block block-row align-start block-spase ">
-                                    <div className="normal-text-14 flex-2">Пример материала 2</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">2</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">13412</div>
-                                </div>
-                                <div className="block block-row align-start block-spase ">
-                                    <div className="normal-text-14 flex-2">Пример материала 3</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">81</div>
-                                    <div className="block block-column-0-padding flex-075 align-center normal-text-14">2342</div>
-                                </div>
+                                
                                 <button className="main-button align-center"
                                 >Добавить Материал
                                 </button>
-
                             </div>
                         </div>
                     </div>
                     <div className="block block-column white-container">
-                        <div className="block block-row">Добавить Материал</div>
+                        <div className="block block-row">Пример Материала</div>
                         <div className="block block-row">
                             <div className="bold-text-16">Выход:</div>
                             <div className="normal-text-14">000000</div>
@@ -157,7 +160,25 @@ export function GetPassportPageMore() {
     </div>
 }
 
-function GetMiddle(bool: boolean) {
+function UpdateSteps(steps: Step[]) {
+    return <> {steps.map((step, index) => (
+        <button className="main-button left-section"
+        >{step.operationId}
+        </button>
+    ))}</>
+}
+function ShowMaterials(materials: Material[])
+{
+    return <> {materials.map((material, index) => (
+        <div className="block block-row align-center">
+            <div className="normal-text-14 flex-2">{material.name}</div>
+            <div className="block block-column-0-padding flex-075 align-center normal-text-14">12</div>
+            <div className="block block-column-0-padding flex-075 align-center normal-text-14">1412412
+            </div>
+        </div>
+    ))}</>
+}
+function GetMiddle(bool: boolean, id: string) {
     const navigate = useNavigate();
     const [activeButtonInfo, setActiveButtonInfo]
         = useState<{ orderIndex: number; button: ButtonsName } | null>(null);
@@ -175,14 +196,14 @@ function GetMiddle(bool: boolean) {
             <button
                 className={`main-button ${bool ? 'active' : ''}`}
                 onClick={() => {
-                    navigate("/PassportPage");
+                    navigate(`/PassportPage/${id}`);
                 }}>
                 Паспорт заказа
             </button>
             <button
                 className={`main-button ${!bool ? 'active' : ''}`}
                 onClick={() => {
-                    navigate("/PassportPageMore");
+                    navigate(`/PassportPageMore/${id}`);
                 }}>
                 Подробнее
             </button>
@@ -190,7 +211,7 @@ function GetMiddle(bool: boolean) {
     </>
 }
 
-function GetBottom() {
+function GetBottom(template: GetTemplateByIdResponse) {
     return <>
         <div className="block block-row ">
             <div className="block block-column  white-container ">
@@ -242,7 +263,8 @@ function GetBottom() {
                             <div className="bold-text-16">Название:</div>
                             <input
                                 type={"text"}
-                                defaultValue="Визитка 4+4"
+                                readOnly
+                                defaultValue={template.name}
                                 className="form-input-vertical input-style"
                             />
                         </div>
@@ -251,7 +273,7 @@ function GetBottom() {
                         <div className="block block-column">
                             <div className="bold-text-16">Описание:</div>
                             <textarea
-                                defaultValue="wfew fw Меого текста многа тексата ааааа акак его мноагага ага"
+                                defaultValue="Жду поинта для получения описания из темплейтов"
                                 className="form-input-vertical height-100 input-style"
                             />
                         </div>

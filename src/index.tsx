@@ -10,6 +10,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route, replace, Navigate} from "react-router";
 import {GetLogInPage, GetRegisterPage} from "./Pages/LogInPage";
 import {GetMaterialPage} from "./Pages/MaterialPage";
+import {GetOperationPage} from "./Pages/OperationPage";
 
 const root = document.getElementById("root")!;
 
@@ -19,12 +20,13 @@ ReactDOM.createRoot(root).render(
             <Route path="/" element={<Navigate to="/TemplatePage" replace />} />
             <Route path="/TemplatePage" element={<GetTemplatePage />} />
             <Route path="/CalculationPage" element={<GetCalculationPage />} />
-            <Route path="/PassportPage" element={<GetPassportPage />} />
-            <Route path="/PassportPageMore" element={<GetPassportPageMore />} />
-            <Route path="/TechnologicalMapPage" element={<GetTechnologicalMapPage />} />
+            <Route path="/PassportPage/:id" element={<GetPassportPage />} />
+            <Route path="/PassportPageMore/:id" element={<GetPassportPageMore />} />
+            <Route path="/TechnologicalMapPage/:id" element={<GetTechnologicalMapPage />} />
             <Route path="/LogInPage" element={<GetLogInPage />} />
             <Route path="/RegistrationPage" element={<GetRegisterPage />} />
             <Route path="/MaterialPage" element={<GetMaterialPage />} />
+            <Route path="/OperationPage" element={<GetOperationPage />} />
         </Routes>
     </BrowserRouter>
 );

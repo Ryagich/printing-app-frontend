@@ -2,15 +2,11 @@
 import '../cssFiles/order.css';
 import { useNavigate } from 'react-router-dom';
 import React, {JSX, useState } from "react";
-import Modal from '../Modal/Modal'
+import {TemplateWithDescription} from "../Models/Models";
+import {Modal, ModalTemplateCreate} from "../Modal/Modal";
+import {api} from "../apiService";
 
-export type Order = {
-    Name: string;
-    Description: string;
-    Status?: string;
-}
-
-export type OrderTitleButtons =  'Шаблон'  |  'Расчёт'  |  'Проверенные' | 'Сасал';
+export type OrderTitleButtons =  '+' | 'Шаблон'  |  'Расчёт'  |  'Проверенные';
 
 export function createOrdersTitle(id?: string, name?: string, description?: string,
                                   status?: string, more?: string)
@@ -24,19 +20,22 @@ export function createOrdersTitle(id?: string, name?: string, description?: stri
     </div>
 }
 
-interface OrdersProps{
-    orders: Order[], 
+interface OrdersProps {
+    orders: TemplateWithDescription[], 
     activeInfo: { orderIndex: number; button: string } | null, 
     setActiveInfo: any
+    onSubmit?: () => void;
 }    
 
 export function CreateTemplateOrders(ordersProps: OrdersProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [template, changeTemplate] = useState<TemplateWithDescription>()
+    const navigate = useNavigate();
     
     return <>{ordersProps.orders.map((order, index) => (
-        <div key={index} className="block block-row white-container height-2 hover-transparent hover-light-green ">
+        <div key={index} className="block block-row white-container height-2 hover-transparent hover-light-green hide-children">
             {CreateTexts(index + 1, ordersProps.orders[index])}
-            <div className="content-middle cell-more order-cell-Object">
+            <div className="content-middle cell-more">
                 <button
                     className={`order-button ${ordersProps.activeInfo?.orderIndex === index 
                     && ordersProps.activeInfo?.button === 'Редактировать' ? 'active' : ''}`}
@@ -44,34 +43,44 @@ export function CreateTemplateOrders(ordersProps: OrdersProps) {
                     () => {
                         ordersProps.setActiveInfo({orderIndex: index, button: 'Редактировать'})
                         setIsModalOpen(true);
+                        changeTemplate(order);
                     }}
                 > Редактировать
                 </button>
                 <button
-                    className={`order-button ${ordersProps.activeInfo?.orderIndex === index 
-                    && ordersProps.activeInfo?.button === 'Создать расчёт' ? 'active' : ''}`}
+                    className={`order-button ${ordersProps.activeInfo?.orderIndex === index
+                    && ordersProps.activeInfo?.button === 'Тех. Карта' ? 'active' : ''}`}
                     onClick={
                     () => {
-                        ordersProps.setActiveInfo({orderIndex: index, button: 'Создать расчёт'});
+                        ordersProps.setActiveInfo({orderIndex: index, button: 'Тех. Карта'});
+                        navigate(`/TechnologicalMapPage/${order.id}`);
                     }}
-                > Создать расчёт
+                >Тех. Карта
                 </button>
             </div>
-        </div>        
+        </div>
     ))}
-        <Modal 
-            isOpen={isModalOpen} onClose={() => setIsModalOpen(false) }>
-        </Modal>
+        {template &&
+            <Modal template={template}
+                   onTemplateChanged={changeTemplate}
+                   onSubmit={() => {
+                       api.changeTemplateById(template.id, template).then(() => ordersProps.onSubmit?.())
+                   }}
+                   isOpen={isModalOpen} onClose={() => {
+                        setIsModalOpen(false);
+                        changeTemplate(undefined);
+                   }}
+            />
+        }
     </>
 }
-
 export function CreateCalculationOrders(ordersProps: OrdersProps) {
     const navigate = useNavigate();
     
     return <>{ordersProps.orders.map((order, index) => (
         <div key={index} className="block block-row white-container height-2 hover-transparent hover-light-green ">
             {CreateTexts(index + 1, ordersProps.orders[index])}
-            <div className="content-middle cell-more order-cell-Object ">
+            <div className="content-middle cell-more ">
                 <button
                     className={`order-button ${ordersProps.activeInfo?.orderIndex === index
                     && ordersProps.activeInfo?.button === 'Редактировать' ? 'active' : ''}`}
@@ -87,7 +96,7 @@ export function CreateCalculationOrders(ordersProps: OrdersProps) {
                     onClick={
                         () => {
                             ordersProps.setActiveInfo({orderIndex: index, button: 'Паспорт'});
-                            navigate("/PassportPage");
+                            navigate(`/PassportPage/${order.id}`);
                         }}
                 > Паспорт
                 </button>
@@ -97,22 +106,22 @@ export function CreateCalculationOrders(ordersProps: OrdersProps) {
     </>
 }
 
-function CreateTexts(index: number, order: Order) {
+function CreateTexts(index: number, order: TemplateWithDescription) {
     return <>
         <div className="content-middle cell-id bold-text-16 ellipsis">{index}</div>
-        <div className="content-middle cell-name bold-text-16 ellipsis">{order.Name}</div>
-        <div className="content-middle cell-description bold-text-16 ellipsis">{order.Description}</div>
-        <div className="content-middle cell-status bold-text-16 ellipsis">{order.Status}</div>
+        <div className="content-middle cell-name bold-text-16 ellipsis">{order.name}</div>
+        <div className="content-middle cell-description bold-text-16 ellipsis">{order.description}</div>
+        <div className="content-middle cell-status bold-text-16 ellipsis">"Жду Статус"</div>
     </>
 }
 
-interface ButtonLabel{
+interface ButtonLabel {
     buttonLabels: OrderTitleButtons[],
     activeButton: OrderTitleButtons,
     setActiveButton: (text: OrderTitleButtons) => void
+    onSubmit: () => void
 }
-export function GetMainTitle(name: string)
-{
+export function GetMainTitle(name: string) {
     return  <div className="block block-row">
         <div className="flex-1">
         </div>
@@ -124,8 +133,7 @@ export function GetMainTitle(name: string)
         </div>
     </div>
 }
-export function GetProfileMenu()
-{
+export function GetProfileMenu() {
     const [isOpen, setOpen] = useState(false);
     const navigate = useNavigate();
     return <>
@@ -142,7 +150,12 @@ export function GetProfileMenu()
                             }}>
                         Материалы
                     </button>
-                    <button className="main-button-0-padding">Операции</button>
+                    <button className="main-button-0-padding"
+                            onClick={() => {
+                                navigate("/OperationPage");
+                            }}>
+                        Операции
+                    </button>
                     <button className="main-button-0-padding"
                             onClick={() => {
                                 navigate("/LogInPage");
@@ -154,19 +167,42 @@ export function GetProfileMenu()
         )}
     </>
 }
+
 export function CreateTitleButtons(ButtonLabel: ButtonLabel) {
     const navigate = useNavigate();
-    return <div className="block block-row content-middle">
-        {ButtonLabel.buttonLabels.map((text) => (
-            <button
-                key={text}
-                className={`main-button ${ButtonLabel.activeButton === text ? 'active' : ''}`}
-                onClick={() => {
-                    ButtonLabel.setActiveButton(text)
-                    if (text === 'Расчёт') navigate("/CalculationPage");
-                    if (text === 'Шаблон') navigate("/TemplatePage");
-                }}>
-                {text}
-            </button>))}
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    return <div>
+        <div className="block block-row content-middle">
+            
+            {ButtonLabel.buttonLabels.map((text) => (
+                <button
+                    key={text}
+                    className={`main-button ${text === 'Расчёт' ? 'disable' : '' } `}
+                    onClick={() => {
+                        if (text === '+')
+                            setIsModalOpen(true)
+                    }}
+                    //className={`main-button ${ButtonLabel.activeButton === text ? 'active' : ''}`}
+                    // onClick={() => {
+                    //     ButtonLabel.setActiveButton(text)
+                    //     if (text === 'Расчёт') navigate("/CalculationPage");
+                    //     if (text === 'Шаблон') navigate("/TemplatePage");
+                    //     if (text === '+') {
+                    //         {setIsModalOpen(true)}
+                    //     }
+                    // }}
+                    >
+                    {text}
+                </button>)
+            )}
+            
+            {<ModalTemplateCreate
+                    onSubmit = {() => {ButtonLabel.onSubmit?.()}}
+                    isOpen = {isModalOpen} 
+                    onClose={() => { setIsModalOpen(false)}}
+             />
+            }
+        </div>
     </div>
 }

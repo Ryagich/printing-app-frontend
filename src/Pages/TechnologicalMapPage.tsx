@@ -4,62 +4,295 @@ import '../App.css'
 import '../cssFiles/Titles.css';
 import '../cssFiles/Elements.css';
 
-import {useNavigate} from 'react-router-dom';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {GetProfileMenu} from "./OrderPagesCreator";
+import {api} from "../apiService";
+import {GetMaterialByIdResponse, GetOperationByIdResponse, GetTemplateByIdResponse} from "../DTOs";
+import {Operation} from "../Models/Models";
 
 export function GetTechnologicalMapPage() {
     const navigate = useNavigate();
-    return <>
-        <div className="block block-column  ">
-            <div className="block block-row">
-                <button className="main-button"
+    const {id} = useParams();
+    const [template, setTemplate] = useState<GetTemplateByIdResponse>()
+    const [leftModalsIsOpen, setLeftModalsIsOpen] = useState(false)
+    const [isAddOperationModalOpen, setAddOperationModalOpen] = useState(false)
+    const [leftNameModalsIsOpen, setLeftNameModalsIsOpen] = useState(false)
+    const [isNameAddOperationModalOpen, setIsNameAddOperationModalOpen] = useState(false)
+    const [canAddElderOperation, setCanAddElderOperation] = useState(false)
+    const [canAddYoungestOperation, setCanAddYoungestOperation] = useState(false)
+    const [rightModalIsOpen, setRightModalIsOpen] = useState(false)
+    const [currentOperationId, setCurrentOperationId] = useState<string>()
+    const [currentStepId, setCurrentStepId] = useState<string>()
+    
+    useEffect(() => {
+        api.getTemplateById(id!).then(x => {
+            setTemplate(x)
+        });
+    }, []);
+
+    return (id === undefined || !template ? <>Loading...</> :
+            <>
+                <div className="App">
+                    <div className="block block-column">
+                        <GetMainTitle/>
+                        <div className="block block-row content-middle">
+                            <GetNameButton template={template} 
+                                           onClick={() => {
+                                setLeftNameModalsIsOpen(true);
+                                setCanAddElderOperation(false);
+                                setCanAddYoungestOperation(true);
+                            }}/>
+                        </div>
+                        {template?.steps.map((step, index) => (
+                            <GetOperationButton operationId={step.operationId}
+                                                key ={index}
+                                                onSubmit={() => {
+                                                    setLeftModalsIsOpen(true);
+                                                    setCanAddElderOperation(true);
+                                                    setCanAddYoungestOperation(true);
+                                                    setCurrentOperationId(step.operationId)
+                                                    setCurrentStepId(step.id)
+                                                    setRightModalIsOpen(true)
+                                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+                <LeftButtons
+                    isOpen={leftModalsIsOpen}
+                    canAddElderOperation={canAddElderOperation}
+                    canAddYoungestOperation={canAddYoungestOperation}
+                    onAddedModal={() => setAddOperationModalOpen(true)}
+                />        
+                <LeftButtons
+                    isOpen={leftNameModalsIsOpen}
+                    canAddElderOperation={canAddElderOperation}
+                    canAddYoungestOperation={canAddYoungestOperation}
+                    onAddedModal={() => setIsNameAddOperationModalOpen(true)}
+                />
+                <AddOperationModal
+                    isOpen={isAddOperationModalOpen}
+                    onClose={() => setAddOperationModalOpen(false)}
+                    onAddOperation={() => api.getTemplateById(id!).then(x => {setTemplate(x)})}
+                    templateId={id}
+                    stepId={currentStepId!}
+                />
+                <AddOperationModal
+                    isOpen={isNameAddOperationModalOpen}
+                    onClose={() => setIsNameAddOperationModalOpen(false)}
+                    onAddOperation={() => {
+                        api.getTemplateById(id!).then(x => {
+                            setTemplate(x)
+                        })
+                        setLeftNameModalsIsOpen(false)
+                        setIsNameAddOperationModalOpen(false)
+                    }}
+                    templateId={id}
+                    stepId={""}
+                />
+                <RightOperationInfo isOpen={rightModalIsOpen}
+                                    id ={currentOperationId!}
+                />
+            </>
+    );
+}
+const GetNameButton = ({template, onClick} : {template: GetTemplateByIdResponse, onClick: () => void}) => {
+    return (
+        <>
+            <button
+                className="tech-button"
+                onClick={() => {
+                    if (template?.steps.length === 0) {
+                        onClick();
+                    }
+                }}>
+                {template?.name}
+            </button>
+        </>
+    );
+}
+
+const GetOperationButton = ({operationId, onSubmit} 
+                         : {operationId: string, onSubmit: () => void}) => {
+    const [operation, SetOperation] = useState<GetOperationByIdResponse>()
+
+    useEffect(() => {
+        api.getOperationById(operationId).then(x => {
+            SetOperation(x)
+        });
+    }, []);
+
+    return operation === undefined ? null :
+        <div className="block block-row content-middle">
+            <button
+                className="tech-button"
+                onClick={() => {
+                    onSubmit();
+                }}>
+                {operation.name}
+            </button>
+        </div>
+}
+
+function GetMainTitle() {
+    const navigate = useNavigate();
+    return <div className="block block-row">
+        <div className="flex-1 content-left">
+            <div className="block block-row-0-padding align-center">
+                <button className="block-button bold-text-24"
                         onClick={
                             () => {
-                                navigate("/CalculationPage");
-                            }}>← Вернуться
+                                navigate("/TemplatePage");
+                            }}>←
                 </button>
             </div>
         </div>
-        <div className="white-container">
-            <div className="block block-column align-center">
-                <div className="block block-row bold-text-24">Технологическая карта:</div>
-                <div className="block block-row align-center">
-                    <div className="main-button">Допечатные работы ˅</div>
-                    <div className="main-button">Контрагенты ˅</div>
-                    <div className="main-button">Общие ˅</div>
-                    <div className="main-button">Печать ˅</div>
-                    <div className="main-button">Поспечатные работы ˅</div>
-                    <div className="main-button">Препресс ˅</div>
+        <div className="flex-1 page-header-title content-middle ellipsis">
+            Технологическая карта
+        </div>
+        <div className="flex-1 content-right">
+            <GetProfileMenu/>
+        </div>
+    </div>
+}
+
+const LeftButtons = ({isOpen, canAddElderOperation, canAddYoungestOperation, onAddedModal}
+                         : {
+    isOpen: boolean, canAddElderOperation: boolean, canAddYoungestOperation: boolean,
+    onAddedModal: () => void
+}) => {
+    if (!isOpen) return null;
+    return <>
+        <div className="block block-row-0-padding left-drop-down-menu ">
+            <div className="block block-column-0-padding-0-gap">
+                {canAddElderOperation && false ?
+                    <button className="tech-button"
+                            onClick={() => {
+                                onAddedModal();
+                            }}>
+                        Новая старшая операция
+                    </button>
+                    :
+                    <></>
+                }
+                {canAddYoungestOperation ?
+                    <button className="tech-button"
+                            onClick={() => {
+                                onAddedModal();
+                            }}>
+                        Новая младшая операция
+                    </button>
+                    :
+                    <></>
+                }
+            </div>
+        </div>
+    </>
+}
+const RightOperationInfo = ({isOpen, id} : {isOpen: boolean, id: string}) => {
+    const [operation, SetOperation] = useState<GetOperationByIdResponse>()
+
+    useEffect(() => {
+        if (id)
+        api.getOperationById(id).then(x => {
+            SetOperation(x)
+        });
+    }, [id]);
+    return !isOpen || !operation ? null : <>
+        {isOpen && (
+            <div className="block block-column right-drop-down-menu">
+                <div className="block block-row white-container">
+                    <div className="block block-column-0-padding">
+                        <div className="bold-text-20">
+                            {operation.name}
+                        </div>
+                        <div className="bold-text-16">
+                            assemblyParts: {operation.assemblyParts}
+                        </div>
+                        <div className="bold-text-16">
+                            cuttingParts: {operation.cuttingParts}
+                        </div>
+                        <div className="bold-text-16">
+                            defectsPercentage: {operation.defectsPercentage}
+                        </div>
+                        <div className="bold-text-16">
+                            colorNumbers: {operation.colorNumbers}
+                        </div>
+                        <div className="bold-text-16">
+                            circulation: {operation.circulation}
+                        </div>
+                        <div className="bold-text-16">
+                            materialIds: {operation.materialIds.length}
+                        </div>
+                    </div>
+                </div>
+                <div className="block block-row white-container">
+                    <div className="block block-column-0-padding">
+                        <div className="bold-text-16 content-middle block-spase">
+                            <div>Материалы</div>
+                            <div>Цена</div>
+                        </div>
+                        {operation.materialIds.map((materialId, index) => (
+                            <GetMaterialName materialId={materialId}/>
+                        ))}
+                    </div>
                 </div>
             </div>
-            <div className="block block-column align-center">
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 1</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 2.1</div>
-                    <div className="main-button">Тестовая операция 2.2</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 3</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 4</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 5</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 6</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 7</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Тестовая операция 8</div>
-                </div>
-                <div className="block block-row">
-                    <div className="main-button">Результат</div>
+        )}
+    </>
+}
+
+const GetMaterialName = ({materialId} : {materialId: string}) => {
+    const [material, setMaterial] = useState<GetMaterialByIdResponse>()
+    useEffect(() => {
+            api.getMaterialById(materialId).then(x => {
+                setMaterial(x)
+            });
+    }, [materialId]);
+    
+    return !material ? null : 
+            <div className="bold-text-16 content-middle block-spase">
+                <div>{material.name}</div>
+                <div>{material.price}</div>
+            </div>
+}
+
+const AddOperationModal = ({isOpen, stepId, onClose, onAddOperation, templateId}
+                        : { isOpen: boolean, stepId: string, onClose: () => void, onAddOperation: () => void, templateId: string}) => {
+    const [operations, setOperations] = useState<Operation[]>()
+    useEffect(() => {
+        api.getAllOperations().then(x => {
+            setOperations([...x.items])
+        });
+    }, []);
+    if (!isOpen) return null;
+    if (operations === undefined) return null;
+    
+    return <>
+        <div className="modal-backdrop">
+            <div className="modal-window">
+                <div className="material-modal-container">
+                    <div className="block block-column-0-padding">
+                        <div className="block block-row-0-padding">
+                            <button onClick={onClose}>←</button>
+                            <div className="content-middle bold-text-16 ellipsis">Операции</div>
+                        </div>
+                        {operations.map((operation, index) => (
+                            <div className="block block-row block-spase">
+                                <div className="content-middle bold-text-16 ellipsis">{operation.name}</div>
+                                <button onClick={() => {
+                                    api.AddOperationInTemplate(templateId, operation.id).then(() => {
+                                        onAddOperation()
+                                    })
+                                    if (stepId) {
+                                        api.addChildOperationInStep(stepId, operation.id).then()
+                                    }
+                                }}
+                                >+</button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

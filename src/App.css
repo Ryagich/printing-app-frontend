@@ -29,3 +29,20 @@ body {
   border-radius: 7px;
   transition: 0.3s;
 }
+
+.left-drop-down-menu {
+  position: absolute;
+  top: 20%; /* по вертикали по центру */
+  left: 1rem;
+  background-color: #fff;
+  border: 1px solid #dd8717;
+  border-radius: 7px;
+  transition: 0.3s;
+}
+.right-drop-down-menu {
+  position: absolute;
+  top: 20%; /* по вертикали по центру */
+  right: 1rem;
+  border-radius: 7px;
+  transition: 0.3s;
+}

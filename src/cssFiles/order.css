@@ -35,10 +35,6 @@
     justify-content: center;
 }
 
-.order-cell-Object {
-    font-size: 16px;
-}
-
 .cell-id {
     flex: 0.75;
 }
@@ -59,12 +55,12 @@
     flex: 1.8;
 }
 
-.order-cell.cell-more .order-button {
+.hide-children .order-button {
     opacity: 0;
     transition: opacity 0.1s ease;
 }
 
-.hover-transparent:hover .order-cell.cell-more .order-button {
+.hide-children:hover .order-button {
     opacity: 1;
 }
 
@@ -92,4 +88,11 @@
 .order-button.active {
     background-color: #42a486;
     color: white;
+}
+
+.order-button.disable {
+    background-color: #BFBFBF;
+    color: white;
+    border: 1px solid #BFBFBF;
+
 }
