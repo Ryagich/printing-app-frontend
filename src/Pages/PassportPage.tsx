@@ -9,7 +9,7 @@ import React, {useEffect, useState} from 'react';
 import {GetMainTitle} from "./OrderPagesCreator";
 import {api} from "../apiService";
 import {GetTemplateByIdResponse} from "../DTOs";
-import {Material, Step, TemplateWithDescription} from "../Models/Models";
+import {Material, Step} from "../Models/Models";
 
 type ButtonsName = 'Паспорт заказа' | 'Подробнее'
 

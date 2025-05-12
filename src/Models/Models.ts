@@ -30,5 +30,6 @@ export interface TemplateWithDescription {
 export interface Step {
     id: string;
     operationId: string;
-    childSteps: Step[];
+    level: number;
+    childStepsIds: string[];
 }

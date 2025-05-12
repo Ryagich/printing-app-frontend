@@ -65,7 +65,8 @@ export interface TemplateRequest {
 }
 export interface GetTemplateByIdResponse {
     id: string,
-    name: string,
+    name: string;
+    description: string;
     steps: Step[],
 }
 export type TemplateListResponse = TemplateWithSteps[];

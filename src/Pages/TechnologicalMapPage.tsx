@@ -9,7 +9,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {GetProfileMenu} from "./OrderPagesCreator";
 import {api} from "../apiService";
 import {GetMaterialByIdResponse, GetOperationByIdResponse, GetTemplateByIdResponse} from "../DTOs";
-import {Operation} from "../Models/Models";
+import {Operation, Step} from "../Models/Models";
 
 export function GetTechnologicalMapPage() {
     const navigate = useNavigate();
@@ -24,7 +24,10 @@ export function GetTechnologicalMapPage() {
     const [rightModalIsOpen, setRightModalIsOpen] = useState(false)
     const [currentOperationId, setCurrentOperationId] = useState<string>()
     const [currentStepId, setCurrentStepId] = useState<string>()
-    
+    const handleStepSelect = (stepId: string, operationId: string) => {
+        setCurrentStepId(stepId);
+        setCurrentOperationId(operationId);
+    }
     useEffect(() => {
         api.getTemplateById(id!).then(x => {
             setTemplate(x)
@@ -44,19 +47,16 @@ export function GetTechnologicalMapPage() {
                                 setCanAddYoungestOperation(true);
                             }}/>
                         </div>
-                        {template?.steps.map((step, index) => (
-                            <GetOperationButton operationId={step.operationId}
-                                                key ={index}
-                                                onSubmit={() => {
-                                                    setLeftModalsIsOpen(true);
-                                                    setCanAddElderOperation(true);
-                                                    setCanAddYoungestOperation(true);
-                                                    setCurrentOperationId(step.operationId)
-                                                    setCurrentStepId(step.id)
-                                                    setRightModalIsOpen(true)
-                                                }}
-                            />
-                        ))}
+                        {<CreateSteps steps={template?.steps}
+                                      onStepSelect={(stepId: string, operationId: string) => {
+                                          setLeftModalsIsOpen(true);
+                                          setCanAddElderOperation(true);
+                                          setCanAddYoungestOperation(true);
+                                          setRightModalIsOpen(true)
+                                          handleStepSelect(stepId, operationId);
+                                      }}
+                        />
+                        }
                     </div>
                 </div>
                 <LeftButtons
@@ -113,8 +113,32 @@ const GetNameButton = ({template, onClick} : {template: GetTemplateByIdResponse,
     );
 }
 
-const GetOperationButton = ({operationId, onSubmit} 
-                         : {operationId: string, onSubmit: () => void}) => {
+const CreateSteps = ({steps, onStepSelect} 
+                  : {steps : Step[], onStepSelect: (stepId: string, operationId: string) => void}) => {
+    const maxLevel = Math.max(...steps.map(step => step.level));
+    const groupedSteps: Step[][] = Array.from({ length: maxLevel + 1 }, () => []);
+    
+    for (const step of steps) {groupedSteps[step.level].push(step);}
+
+    return <>
+        {groupedSteps.map((ss, level) => (<>
+                <div className="block block-row content-middle" key={level}>
+                    {ss.map((step) => (<>
+                            <GetOperationButton key={step.id}
+                                                stepId ={step.id}
+                                                operationId={step.operationId}
+                                                onClick={onStepSelect}
+                            />
+                        </>
+                    ))}
+                </div>
+            </>
+        ))}
+    </>
+}
+
+const GetOperationButton = ({stepId, operationId, onClick} 
+                         : {stepId: string, operationId: string, onClick: (stepId: string, operationId: string) => void}) => {
     const [operation, SetOperation] = useState<GetOperationByIdResponse>()
 
     useEffect(() => {
@@ -122,17 +146,14 @@ const GetOperationButton = ({operationId, onSubmit}
             SetOperation(x)
         });
     }, []);
-
-    return operation === undefined ? null :
-        <div className="block block-row content-middle">
-            <button
+    if (operation === undefined) return null;
+    return <button
                 className="tech-button"
                 onClick={() => {
-                    onSubmit();
+                    onClick(stepId, operationId);
                 }}>
                 {operation.name}
             </button>
-        </div>
 }
 
 function GetMainTitle() {
@@ -282,12 +303,14 @@ const AddOperationModal = ({isOpen, stepId, onClose, onAddOperation, templateId}
                             <div className="block block-row block-spase">
                                 <div className="content-middle bold-text-16 ellipsis">{operation.name}</div>
                                 <button onClick={() => {
+                                    if (stepId === undefined || stepId === "") {
                                     api.AddOperationInTemplate(templateId, operation.id).then(() => {
                                         onAddOperation()
-                                    })
-                                    if (stepId) {
-                                        api.addChildOperationInStep(stepId, operation.id).then()
-                                    }
+                                    })}
+                                    else {
+                                        api.addChildOperationInStep(stepId, operation.id).then(() => {
+                                        onAddOperation()
+                                    })}
                                 }}
                                 >+</button>
                             </div>
