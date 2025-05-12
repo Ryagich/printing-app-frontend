@@ -31,6 +31,7 @@ body {
 }
 
 .left-drop-down-menu {
+  z-index: 1;
   position: absolute;
   top: 20%; /* по вертикали по центру */
   left: 1rem;
