@@ -335,29 +335,26 @@ const RightOperationInfo = ({isOpen, id} : {isOpen: boolean, id: string}) => {
     }, [id]);
     return !isOpen || !operation ? null : <>
         {isOpen && (
-            <div className="block block-column right-drop-down-menu">
+            <div className="block block-column right-drop-down-menu ">
                 <div className="block block-row white-container">
                     <div className="block block-column-0-padding">
                         <div className="bold-text-20">
+                           Параметры
+                        </div>
+                        <div className="bold-text-16">
                             {operation.name}
                         </div>
                         <div className="bold-text-16">
-                            assemblyParts: {operation.assemblyParts}
+                            Операций: {operation.assemblyParts}
                         </div>
                         <div className="bold-text-16">
-                            cuttingParts: {operation.cuttingParts}
+                            Выход: {operation.cuttingParts}
                         </div>
                         <div className="bold-text-16">
-                            defectsPercentage: {operation.defectsPercentage}
+                            Брак: {operation.defectsPercentage}
                         </div>
                         <div className="bold-text-16">
-                            colorNumbers: {operation.colorNumbers}
-                        </div>
-                        <div className="bold-text-16">
-                            circulation: {operation.circulation}
-                        </div>
-                        <div className="bold-text-16">
-                            materialIds: {operation.materialIds.length}
+                            Тираж: {operation.circulation}
                         </div>
                     </div>
                 </div>

@@ -41,6 +41,7 @@ body {
   transition: 0.3s;
 }
 .right-drop-down-menu {
+  z-index: 9998;
   position: absolute;
   top: 20%; /* по вертикали по центру */
   right: 1rem;

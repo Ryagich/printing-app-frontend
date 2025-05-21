@@ -387,7 +387,7 @@ const OperationCreateModal = ({isOpen, onClose, onSubmit} : OperationAddModelPro
                             />
                         </div>
                         <div className="block block-column-0-padding content-middle flex-1">
-                            <div className="bold-text-14">Cutting Parts:</div>
+                            <div className="bold-text-14">Выход:</div>
                             <input
                                 type="number"
                                 onChange={e => {
@@ -400,7 +400,7 @@ const OperationCreateModal = ({isOpen, onClose, onSubmit} : OperationAddModelPro
                     </div>
                     <div className="block block-row-0-padding">
                         <div className="block block-column-0-padding content-middle flex-1">
-                            <div className="bold-text-14">Assembly Parts:</div>
+                            <div className="bold-text-14">Операций:</div>
                             <input
                                 type="number"
                                 onChange={e => {
@@ -411,7 +411,7 @@ const OperationCreateModal = ({isOpen, onClose, onSubmit} : OperationAddModelPro
                             />
                         </div>
                         <div className="block block-column-0-padding content-middle flex-1">
-                            <div className="bold-text-14">Defects Percentage:</div>
+                            <div className="bold-text-14">Брак:</div>
                             <input
                                 type="number"
                                 onChange={e => {
@@ -424,7 +424,7 @@ const OperationCreateModal = ({isOpen, onClose, onSubmit} : OperationAddModelPro
                     </div>
                     <div className="block block-row-0-padding">
                         <div className="block block-column-0-padding content-middle flex-1">
-                            <div className="bold-text-14">Circulation:</div>
+                            <div className="bold-text-14">Тираж:</div>
                             <input
                                 type="number"
                                 onChange={e => {
@@ -432,17 +432,6 @@ const OperationCreateModal = ({isOpen, onClose, onSubmit} : OperationAddModelPro
                                     setCirculation(Number(x));
                                 }}
                                 className="form-input-vertical input-style"
-                            />
-                        </div>
-                        <div className="block block-column-0-padding content-middle flex-1">
-                            <div className="bold-text-14">Color Numbers:</div>
-                            <input
-                                type="number"
-                                onChange={e => {
-                                    const c = e.currentTarget.value
-                                    setColorNumbers(Number(c));
-                                }}
-                                className="form-input-vertical input-style "
                             />
                         </div>
                     </div>
