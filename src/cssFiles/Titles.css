@@ -55,9 +55,14 @@
     padding: 0;
     justify-items: stretch;
 }
-
+.block-row-0-padding-0-gap {
+    flex-direction: row;
+    column-gap: 0;
+    padding: 0;
+    justify-items: stretch;
+}
 .block {
-    /*box-shadow: inset 0 0 1px 1px red;*/
+    box-shadow: inset 0 0 1px 1px red;
     border-radius: 8px;
     display: flex;
     flex-grow: 1;
