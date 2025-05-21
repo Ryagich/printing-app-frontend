@@ -178,10 +178,13 @@ export function CreateTitleButtons(ButtonLabel: ButtonLabel) {
             {ButtonLabel.buttonLabels.map((text) => (
                 <button
                     key={text}
-                    className={`main-button ${text === 'Расчёт' ? 'disable' : '' } `}
+                    className={`main-button ${text === 'Расчёт' ? 'disable' : ''} `}
+                    //className={`main-button ${ButtonLabel.activeButton === text ? 'active' : ''}`}
                     onClick={() => {
                         if (text === '+')
                             setIsModalOpen(true)
+                        if (text === 'Расчёт') navigate("/CalculationPage");
+                        //if (text === 'Шаблон') navigate("/TemplatePage");
                     }}
                     //className={`main-button ${ButtonLabel.activeButton === text ? 'active' : ''}`}
                     // onClick={() => {

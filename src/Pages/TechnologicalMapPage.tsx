@@ -4,62 +4,64 @@ import '../App.css'
 import '../cssFiles/Titles.css';
 import '../cssFiles/Elements.css';
 
-import React, {useEffect, useState, useRef, forwardRef, use} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {GetProfileMenu} from "./OrderPagesCreator";
-import {api} from "../apiService";
-import {GetMaterialByIdResponse, GetOperationByIdResponse, GetTemplateByIdResponse} from "../DTOs";
-import {Operation, Step} from "../Models/Models";
+import React, { useEffect, useState, useRef, forwardRef, useLayoutEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { GetProfileMenu } from "./OrderPagesCreator";
+import { api } from "../apiService";
+import { GetMaterialByIdResponse, GetOperationByIdResponse, GetTemplateByIdResponse } from "../DTOs";
+import { Operation, Step } from "../Models/Models";
 
 export function GetTechnologicalMapPage() {
     const navigate = useNavigate();
-    const {id} = useParams();
-    const [template, setTemplate] = useState<GetTemplateByIdResponse>()
-    const [leftModalsIsOpen, setLeftModalsIsOpen] = useState(false)
-    const [isAddOperationModalOpen, setAddOperationModalOpen] = useState(false)
-    const [leftNameModalsIsOpen, setLeftNameModalsIsOpen] = useState(false)
-    const [isNameAddOperationModalOpen, setIsNameAddOperationModalOpen] = useState(false)
-    const [canAddElderOperation, setCanAddElderOperation] = useState(false)
-    const [canAddYoungestOperation, setCanAddYoungestOperation] = useState(false)
-    const [rightModalIsOpen, setRightModalIsOpen] = useState(false)
-    const [currentOperationId, setCurrentOperationId] = useState<string>()
-    const [currentStepId, setCurrentStepId] = useState<string>()
+    const { id } = useParams();
+    const [template, setTemplate] = useState<GetTemplateByIdResponse>();
+    const [leftModalsIsOpen, setLeftModalsIsOpen] = useState(false);
+    const [isAddOperationModalOpen, setAddOperationModalOpen] = useState(false);
+    const [leftNameModalsIsOpen, setLeftNameModalsIsOpen] = useState(false);
+    const [isNameAddOperationModalOpen, setIsNameAddOperationModalOpen] = useState(false);
+    const [canAddElderOperation, setCanAddElderOperation] = useState(false);
+    const [canAddYoungestOperation, setCanAddYoungestOperation] = useState(false);
+    const [rightModalIsOpen, setRightModalIsOpen] = useState(false);
+    const [currentOperationId, setCurrentOperationId] = useState<string>();
+    const [currentStepId, setCurrentStepId] = useState<string>();
+
     const handleStepSelect = (stepId: string, operationId: string) => {
         setCurrentStepId(stepId);
         setCurrentOperationId(operationId);
-    }
+    };
     const nameButtonRef = useRef<HTMLButtonElement>(null);
+
     useEffect(() => {
-        api.getTemplateById(id!).then(x => {
-            setTemplate(x)
-        });
-    }, []);
+        api.getTemplateById(id!).then(setTemplate);
+    }, [id]);
 
     return (id === undefined || !template ? <>Loading...</> :
             <>
                 <div className="App">
                     <div className="block block-column">
-                        <GetMainTitle/>
+                        <GetMainTitle />
                         <div className="block block-row content-middle">
-                            <GetNameButton ref={nameButtonRef}
-                                           template={template}
-                                           onClick={() => {
-                                               setLeftNameModalsIsOpen(true);
-                                               setCanAddElderOperation(false);
-                                               setCanAddYoungestOperation(true);
-                                           }}/>
+                            <GetNameButton
+                                ref={nameButtonRef}
+                                template={template}
+                                onClick={() => {
+                                    setLeftNameModalsIsOpen(true);
+                                    setCanAddElderOperation(false);
+                                    setCanAddYoungestOperation(true);
+                                }}
+                            />
                         </div>
-                        {<CreateSteps steps={template?.steps}
-                                      nameButtonRef={nameButtonRef.current!}
-                                      onStepSelect={(stepId: string, operationId: string) => {
-                                          setLeftModalsIsOpen(true);
-                                          setCanAddElderOperation(true);
-                                          setCanAddYoungestOperation(true);
-                                          setRightModalIsOpen(true)
-                                          handleStepSelect(stepId, operationId);
-                                      }}
+                        <CreateSteps
+                            steps={template.steps}
+                            nameButtonRef={nameButtonRef.current!}
+                            onStepSelect={(stepId, operationId) => {
+                                setLeftModalsIsOpen(true);
+                                setCanAddElderOperation(true);
+                                setCanAddYoungestOperation(true);
+                                setRightModalIsOpen(true);
+                                handleStepSelect(stepId, operationId);
+                            }}
                         />
-                        }
                     </div>
                 </div>
                 <LeftButtons
@@ -119,105 +121,74 @@ const GetNameButton = React.forwardRef<HTMLButtonElement, {template: GetTemplate
 
 type StepMap = Record<string, HTMLButtonElement | null>;
 
-const CreateSteps = ({steps, nameButtonRef, onStepSelect}
-                         : {steps : Step[], nameButtonRef: HTMLButtonElement,  onStepSelect: (stepId: string, operationId: string) => void}) => {
-    const maxLevel = Math.max(...steps.map(step => step.level));
+const CreateSteps = ({ steps, nameButtonRef, onStepSelect }
+                         : { steps: Step[]; nameButtonRef: HTMLButtonElement; onStepSelect: (stepId: string, operationId: string) => void; }) => {
+    const maxLevel = Math.max(...steps.map(s => s.level));
     const groupedSteps: Step[][] = Array.from({ length: maxLevel + 1 }, () => []);
     const stepRefs = useRef<StepMap>({});
     const svgRef = useRef<SVGSVGElement>(null);
-    const [n,setN] = useState(0)
-    
-    for (const step of steps) {groupedSteps[step.level].push(step);}
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (steps.length !== Object.keys(stepRefs.current).length)
-            {
+    // group steps by level
+    for (const step of steps) groupedSteps[step.level].push(step);
+
+    // draw lines after each render, once refs are set
+    useLayoutEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return;
+
+        const waitForRefs = () => {
+            if (steps.length !== Object.keys(stepRefs.current).length) {
+                requestAnimationFrame(waitForRefs);
                 return;
             }
-            clearInterval(interval)
-            
-            console.log(steps)
-
-            const svg = svgRef.current;
-            if (!svg) return;
-
-            svg.innerHTML = "";
+            // clear previous lines
+            svg.innerHTML = '';
             const svgRect = svg.getBoundingClientRect();
 
-            steps.forEach((parent) => {
-                console.log("parent.id " + parent.id)
-                console.log(stepRefs)
-                console.log(stepRefs.current)
-
+            steps.forEach(parent => {
                 const parentEl = stepRefs.current[parent.id];
-                console.log(parentEl)
-
                 if (!parentEl) return;
-
                 const parentRect = parentEl.getBoundingClientRect();
                 const parentX = parentRect.left + parentRect.width / 2 - svgRect.left;
                 const parentY = parentRect.bottom - svgRect.top;
 
                 const childCenters: { x: number; y: number }[] = [];
-
-                for (const childId of parent.childStepsIds) {
+                parent.childStepsIds.forEach(childId => {
                     const childEl = stepRefs.current[childId];
-                    if (!childEl) continue;
-
+                    if (!childEl) return;
                     const childRect = childEl.getBoundingClientRect();
                     const childX = childRect.left + childRect.width / 2 - svgRect.left;
                     const childY = childRect.top - svgRect.top;
                     childCenters.push({ x: childX, y: childY });
-                }
+                });
                 if (childCenters.length === 0) return;
 
-                const minX = Math.min(...childCenters.map((c) => c.x));
-                const maxX = Math.max(...childCenters.map((c) => c.x));
                 const midY = parentY + 8;
-
+                // vertical from parent
                 drawLine(svg, parentX, parentY, parentX, midY);
-                childCenters.forEach((c) => {
-                    drawLine(svg, c.x, midY, c.x, c.y);
-                });
-                childCenters.forEach((c) => {
-                    drawLine(svg, c.x, midY, parentX, midY);
-                });
+                // vertical to children
+                childCenters.forEach(c => drawLine(svg, c.x, midY, c.x, c.y));
+                // horizontal connecting children
+                childCenters.forEach(c => drawLine(svg, c.x, midY, parentX, midY));
             });
-        }, 100)
-    }, []);
+        };
+
+        waitForRefs();
+    }, [steps]);
 
     return (
-        <div style={{ position: "relative" }}>
-            <svg
-                ref={svgRef}
-                style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    top: 0,
-                    left: 0,
-                    zIndex: -10000,
-                    pointerEvents: "none",
-                }}
-            />
-            <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ position: 'relative' }}>
+            <svg ref={svgRef} style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: -1, pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
                 {groupedSteps.map((levelSteps, i) => (
-                    <div
-                        key={i}
-                        className="block block-row content-middle"
-                        style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: "16px" }}
-                    >
-                        {levelSteps.map((step) => (
+                    <div key={i} className="block block-row content-middle" style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 16 }}>
+                        {levelSteps.map(step => (
                             <GetOperationButton
                                 key={step.id}
                                 stepId={step.id}
                                 operationId={step.operationId}
                                 onClick={onStepSelect}
-                                ref={(el) => {
-                                    console.log("In ref | " + el)
-                                    stepRefs.current[step.id] = el;
-                                }}
+                                ref={el => { stepRefs.current[step.id] = el; }}
                             />
                         ))}
                     </div>
@@ -226,23 +197,18 @@ const CreateSteps = ({steps, nameButtonRef, onStepSelect}
         </div>
     );
 };
-function drawLine(
-    svg: SVGSVGElement,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    color: string = "black"
-) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", x1.toString());
-    line.setAttribute("y1", y1.toString());
-    line.setAttribute("x2", x2.toString());
-    line.setAttribute("y2", y2.toString());
-    line.setAttribute("stroke", color);
-    line.setAttribute("stroke-width", "2");
+
+function drawLine(svg: SVGSVGElement, x1: number, y1: number, x2: number, y2: number, color = 'black') {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1.toString());
+    line.setAttribute('y1', y1.toString());
+    line.setAttribute('x2', x2.toString());
+    line.setAttribute('y2', y2.toString());
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '2');
     svg.appendChild(line);
-}
+} 
+
 
 export const GetOperationButton = forwardRef<HTMLButtonElement, 
              {stepId: string; operationId: string; onClick: (stepId: string, operationId: string) => void;}
